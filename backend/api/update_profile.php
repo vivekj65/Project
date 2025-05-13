@@ -1,26 +1,65 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+header('Content-Type: application/json');
 session_start();
-include '../../config/conn.php';
 
-if (!isset($_SESSION['user_id'])) {
-    die("Unauthorized");
+// ✅ Adjust path based on your structure
+require_once __DIR__ . '/../../db.php';
+
+// ✅ Ensure user is logged in
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) {
+    echo json_encode(['status' => 'error', 'message' => 'User not logged in']);
+    exit;
 }
 
-$user_id = $_SESSION['user_id'];
-$name = $_POST['name'];
-$email = $_POST['email'];
+// ✅ Handle POST request
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $name = trim($_POST['name'] ?? '');
+        $updated_at = date('Y-m-d H:i:s');
 
-if (isset($_FILES['profile_photo']) && $_FILES['profile_photo']['error'] === UPLOAD_ERR_OK) {
-    $imageData = file_get_contents($_FILES['profile_photo']['tmp_name']);
-    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ?, profile = ? WHERE id = ?");
-    $stmt->bind_param("sssi", $name, $email, $imageData, $user_id);
-} else {
-    $stmt = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
-    $stmt->bind_param("ssi", $name, $email, $user_id);
+        // ✅ Check if profile photo uploaded
+        if (!empty($_FILES['profile_photo']['tmp_name'])) {
+            $file_tmp = $_FILES['profile_photo']['tmp_name'];
+
+            // Read as BLOB
+            $profile_blob = file_get_contents($file_tmp);
+
+            // Optional: Save to uploads/profile/ directory
+            $upload_dir = __DIR__ . '/../../uploads/profile/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            $unique_name = uniqid() . '_' . basename($_FILES['profile_photo']['name']);
+            move_uploaded_file($file_tmp, $upload_dir . $unique_name);
+
+            // ✅ Update name + profile
+            $stmt = $pdo->prepare("UPDATE users SET name = ?, profile = ?, updated_at = ? WHERE id = ?");
+            $stmt->bindParam(1, $name);
+            $stmt->bindParam(2, $profile_blob, PDO::PARAM_LOB);
+            $stmt->bindParam(3, $updated_at);
+            $stmt->bindParam(4, $user_id);
+            $stmt->execute();
+
+        } else {
+            // ✅ Update name only
+            $stmt = $pdo->prepare("UPDATE users SET name = ?, updated_at = ? WHERE id = ?");
+            $stmt->execute([$name, $updated_at, $user_id]);
+        }
+
+        echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully']);
+        exit;
+    } catch (Throwable $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Server Error: ' . $e->getMessage(),
+        ]);
+        exit;
+    }
 }
 
-if ($stmt->execute()) {
-    header("Location: profile.php");
-} else {
-    echo "Failed to update profile.";
-}
+echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
+exit;
