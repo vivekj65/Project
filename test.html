@@ -1,0 +1,62 @@
+hey chatgpt
+i need fetch data 
+i have table activity_logs with `id`, `user_id`, `c_id`, `action`, `entity_type`, `entity_id`, `description`, `ip_addr`, `created_at`
+using ajax data should be fetched without reloading page
+
+i have inserted data like this
+
+<table id="logTable" class="table align-items-center mb-0 display nowrap"
+style="width:100%">
+<thead>
+    <tr>
+        <th
+            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-15">
+            Date</th>
+        <th
+            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-15">
+            User</th>
+        <th
+            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-15">
+            Action</th>
+        <th
+            class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-15 ps-2">
+            Description</th>
+        <th
+            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-15">
+            IP</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>
+            <div class="d-flex py-1">
+                <div class="d-flex flex-column justify-content-center">
+                    <h6 class="mb-0 text-sm"></h6>
+                    <p class="text-xs text-secondary mb-0">Apr 19, 2025 00:25:34</p>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div class="d-flex px-2 py-1">
+                <div>
+                    <img src="../assets/img/team-2.jpg"
+                        class="avatar avatar-sm me-3 border-radius-lg" alt="user1">
+                </div>
+                <div class="d-flex flex-column justify-content-center">
+                    <h6 class="mb-0 text-sm">John Michael</h6>
+                    <p class="text-xs text-secondary mb-0">john@creative-tim.com</p>
+                </div>
+            </div>
+        </td>
+        <td class="align-middle text-center text-sm">
+            <span class="badge badge-sm bg-gradient-success">Login</span>
+        </td>
+        <td>
+            <p class="text-xs text-secondary mb-0">User Login</p>
+        </td>
+        <td class="align-middle text-center">
+            <span class="text-secondary text-xs font-weight-bold">::1</span>
+        </td>
+    </tr>
+</tbody>
+</table>
